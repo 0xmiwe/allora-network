@@ -80,7 +80,6 @@ nano config.json
 ```
 4. **set-config.json**
 
-RPC: https://allora-rpc.testnet-1.testnet.allora.network/
  ```sh
 {
     "wallet": {
@@ -181,8 +180,8 @@ RPC: https://allora-rpc.testnet-1.testnet.allora.network/
 }
 ```
 * "your phase" {change_your_wallet}
-* LINK API: https://www.coingecko.com/en/developers/dashboard
-
+----> if error you can change rpc url
+RPC: https://allora-rpc.testnet-1.testnet.allora.network/
 
 5. **edit APP.PY**
 
@@ -270,6 +269,10 @@ def get_inference(token):
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=8000, debug=True)
 ```
+
+*Edit your api_key from Coingecko
+*LINK API: https://www.coingecko.com/en/developers/dashboard
+
 6. Initialize Worker
 ```sh
 chmod +x init.config
