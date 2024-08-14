@@ -1,7 +1,50 @@
 # Allora network guide
 
-how-to-run-worker-allora-hugging-face-worker
 
+# Install Python3
+```sh
+sudo apt install python3
+python3 --version
+
+sudo apt install python3-pip
+pip3 --version
+```
+```sh
+# Install Docker
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+sudo apt-get update
+sudo apt-get install docker-ce docker-ce-cli containerd.io
+docker version
+```
+# Install Docker-Compose
+```sh
+VER=$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep tag_name | cut -d '"' -f 4)
+
+curl -L "https://github.com/docker/compose/releases/download/"$VER"/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+
+chmod +x /usr/local/bin/docker-compose
+docker-compose --version
+```
+# Docker Permission to user
+```sh
+sudo groupadd docker
+sudo usermod -aG docker $USER
+```
+
+# Install Go
+```sh
+sudo rm -rf /usr/local/go
+curl -L https://go.dev/dl/go1.22.4.linux-amd64.tar.gz | sudo tar -xzf - -C /usr/local
+echo 'export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin' >> $HOME/.bash_profile
+echo 'export PATH=$PATH:$(go env GOPATH)/bin' >> $HOME/.bash_profile
+source .bash_profile
+go version
+```
+
+# how-to-run-worker-allora-hugging-face-worker
 1. **clone repo**
 
 ```sh
