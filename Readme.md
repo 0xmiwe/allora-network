@@ -121,7 +121,7 @@ RPC: https://allora-rpc.testnet-1.testnet.allora.network/
 }
 ```
 * "your phase" {change_your_wallet}
-* LINK API: https://www.coingecko.com/vi/developers/b%E1%BA%A3ng_%C4%91i%E1%BB%81u_khi%E1%BB%83n
+* LINK API: https://www.coingecko.com/en/developers/dashboard
 
 
 5. **edit APP.PY**
