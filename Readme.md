@@ -127,64 +127,88 @@ RPC: https://allora-rpc.testnet-1.testnet.allora.network/
 5. **edit APP.PY**
 
 ```sh
+from flask import Flask, Response
+import requests
 import json
-import pickle
 import pandas as pd
-import numpy as np
-from datetime import datetime
-from flask import Flask, jsonify, Response
-from model import download_data, format_data, train_model
-from config import model_file_path
+import torch
+from chronos import ChronosPipeline
 
+# create our Flask app
 app = Flask(__name__)
 
+# define the Hugging Face model we will use
+model_name = "amazon/chronos-t5-tiny"
 
-def update_data():
-    """Download price data, format data and train model."""
-    download_data()
-    format_data()
-    train_model()
+def get_coingecko_url(token):
+    base_url = "https://api.coingecko.com/api/v3/coins/"
+    token_map = {
+        'ETH': 'ethereum',
+        'SOL': 'solana',
+        'BTC': 'bitcoin',
+        'BNB': 'binancecoin',
+        'ARB': 'arbitrum'
+    }
+    
+    token = token.upper()
+    if token in token_map:
+        url = f"{base_url}{token_map[token]}/market_chart?vs_currency=usd&days=30&interval=daily"
+        return url
+    else:
+        raise ValueError("Unsupported token")
 
-
-def get_eth_inference():
-    """Load model and predict current price."""
-    with open(model_file_path, "rb") as f:
-        loaded_model = pickle.load(f)
-
-    now_timestamp = pd.Timestamp(datetime.now()).timestamp()
-    X_new = np.array([now_timestamp]).reshape(-1, 1)
-    current_price_pred = loaded_model.predict(X_new)
-
-    return current_price_pred[0][0]
-
-
+# define our endpoint
 @app.route("/inference/<string:token>")
-def generate_inference(token):
+def get_inference(token):
     """Generate inference for given token."""
-    if not token or token != "ETH":
-        error_msg = "Token is required" if not token else "Token not supported"
-        return Response(json.dumps({"error": error_msg}), status=400, mimetype='application/json')
+    try:
+        # use a pipeline as a high-level helper
+        pipeline = ChronosPipeline.from_pretrained(
+            model_name,
+            device_map="auto",
+            torch_dtype=torch.bfloat16,
+        )
+    except Exception as e:
+        return Response(json.dumps({"pipeline error": str(e)}), status=500, mimetype='application/json')
 
     try:
-        inference = get_eth_inference()
-        return Response(str(inference), status=200)
+        # get the data from Coingecko
+        url = get_coingecko_url(token)
+    except ValueError as e:
+        return Response(json.dumps({"error": str(e)}), status=400, mimetype='application/json')
+
+    headers = {
+        "accept": "application/json",
+        "x-cg-demo-api-key": "CG-LuWSkYoP89oHh41YsnG88pDo" # replace with your API key
+    }
+
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        data = response.json()
+        df = pd.DataFrame(data["prices"])
+        df.columns = ["date", "price"]
+        df["date"] = pd.to_datetime(df["date"], unit='ms')
+        df = df[:-1] # removing today's price
+        print(df.tail(5))
+    else:
+        return Response(json.dumps({"Failed to retrieve data from the API": str(response.text)}), 
+                        status=response.status_code, 
+                        mimetype='application/json')
+
+    # define the context and the prediction length
+    context = torch.tensor(df["price"])
+    prediction_length = 1
+
+    try:
+        forecast = pipeline.predict(context, prediction_length)  # shape [num_series, num_samples, prediction_length]
+        print(forecast[0].mean().item()) # taking the mean of the forecasted prediction
+        return Response(str(forecast[0].mean().item()), status=200)
     except Exception as e:
         return Response(json.dumps({"error": str(e)}), status=500, mimetype='application/json')
 
-
-@app.route("/update")
-def update():
-    """Update data and return status."""
-    try:
-        update_data()
-        return "0"
-    except Exception:
-        return "1"
-
-
-if __name__ == "__main__":
-    update_data()
-    app.run(host="0.0.0.0", port=8000)
+# run our Flask app
+if __name__ == '__main__':
+    app.run(host="0.0.0.0", port=8000, debug=True)
 ```
 6. Initialize Worker
 ```sh
