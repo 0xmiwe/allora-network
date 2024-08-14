@@ -15,8 +15,10 @@ python3 --version
 sudo apt install python3-pip
 pip3 --version
 ```
-```sh
+
 # Install Docker
+
+```sh
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
 
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
@@ -49,7 +51,14 @@ echo 'export PATH=$PATH:$(go env GOPATH)/bin' >> $HOME/.bash_profile
 source .bash_profile
 go version
 ```
+## Install Allorad: Wallet
+```sh
+git clone https://github.com/allora-network/allora-chain.git
 
+cd allora-chain && make all
+
+allorad version
+```
 # how-to-run-worker-allora-hugging-face-worker
 1. **clone repo**
 
