@@ -1,5 +1,7 @@
 # Allora network guide
 
+how-to-run-worker-allora-hugging-face-worker
+
 1. **clone repo**
 
 ```sh
