@@ -1,8 +1,9 @@
 # Allora network guide
 
 # Install dependecies
-```sh
+
 # Install Packages
+```sh
 sudo apt update & sudo apt upgrade -y
 
 sudo apt install ca-certificates zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev curl git wget make jq build-essential pkg-config lsb-release libssl-dev libreadline-dev libffi-dev gcc screen unzip lz4 -y
