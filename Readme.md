@@ -239,7 +239,7 @@ def get_inference(token):
 
     headers = {
         "accept": "application/json",
-        "x-cg-demo-api-key": "CG-LuWSkYoP89oHh41YsnG88pDo" # replace with your API key
+        "x-cg-demo-api-key": "CG-your_api_key" # replace with your API key
     }
 
     response = requests.get(url, headers=headers)
